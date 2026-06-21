@@ -1,10 +1,11 @@
 import { useNavigate } from 'react-router-dom'
 import { useProjects, useDeleteProject } from '../hooks/useProjects'
 import { useProjectStore } from '../store/project'
-import { FolderOpen, Trash2, Plus, BarChart2, Users, Globe, Megaphone, DollarSign, Calendar } from 'lucide-react'
+import { FolderOpen, Trash2, Plus, BarChart2, Users, UserSearch, Globe, DollarSign, Calendar } from 'lucide-react'
+import { isLegacyCompetitorsShape } from '../types/research'
 
-const moduleIcons = [BarChart2, Users, Globe, Megaphone, DollarSign]
-const moduleColors = ['text-teal-400', 'text-indigo-400', 'text-emerald-400', 'text-rose-400', 'text-amber-400']
+const moduleIcons = [BarChart2, Users, UserSearch, Globe, DollarSign]
+const moduleColors = ['text-teal-400', 'text-indigo-400', 'text-pink-400', 'text-emerald-400', 'text-amber-400']
 
 export default function MyProjects() {
   const { data: projects, isLoading } = useProjects()
@@ -89,11 +90,12 @@ export default function MyProjects() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         {projects.map((project) => {
+          const competitors = project.competitors
           const modulesDone = [
             !!project.marketResearch,
-            (project.competitors?.length ?? 0) > 0,
+            isLegacyCompetitorsShape(competitors) ? competitors.length > 0 : !!(competitors as any)?.competitors?.length,
+            (project.customerValidation?.communities?.length ?? 0) > 0,
             !!project.websiteCode,
-            (project.marketingKit?.length ?? 0) > 0,
             (project.fundingOpportunities?.length ?? 0) > 0,
           ]
           const doneCount = modulesDone.filter(Boolean).length

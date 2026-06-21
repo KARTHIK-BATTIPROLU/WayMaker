@@ -56,3 +56,12 @@ api.interceptors.response.use(
 )
 
 export default api
+
+// ── Ideation helper ───────────────────────────────────────────────────────
+import type { IdeateResponse } from '../types'
+
+export async function ideate(projectId: string, message: string): Promise<IdeateResponse> {
+  const res = await api.post<IdeateResponse>(`/api/projects/${projectId}/ideate`, { message })
+  return res.data
+}
+

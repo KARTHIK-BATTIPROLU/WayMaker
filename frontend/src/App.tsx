@@ -9,11 +9,16 @@ import Dashboard from './pages/Dashboard'
 import MyProjects from './pages/MyProjects'
 import DashboardLayout from './components/layout/DashboardLayout'
 import MarketResearch from './pages/modules/MarketResearch'
-import Competitors from './pages/modules/Competitors'
+import CompetitorAnalysis from './pages/modules/CompetitorAnalysis'
+import CustomerValidation from './pages/modules/CustomerValidation'
 import WebsiteBuilder from './pages/modules/WebsiteBuilder'
-import MarketingKit from './pages/modules/MarketingKit'
 import FundingMatcher from './pages/modules/FundingMatcher'
 import Deployments from './pages/modules/Deployments'
+import MarketingKitHome from './features/marketingKit/MarketingKitHome'
+import OwnIdeaFlow from './features/marketingKit/ownIdea/OwnIdeaFlow'
+import CalendarView from './features/marketingKit/calendar/CalendarView'
+import PreviewPanel from './features/marketingKit/preview/PreviewPanel'
+import PlatformPreview from './features/marketingKit/preview/PlatformPreview'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const accessToken = useAuthStore((s) => s.accessToken)
@@ -35,9 +40,15 @@ export default function App() {
           >
             <Route index element={<Dashboard />} />
             <Route path="research" element={<MarketResearch />} />
-            <Route path="competitors" element={<Competitors />} />
+            <Route path="competitors" element={<CompetitorAnalysis />} />
+            <Route path="customer-validation" element={<CustomerValidation />} />
             <Route path="website" element={<WebsiteBuilder />} />
-            <Route path="marketing" element={<MarketingKit />} />
+            <Route path="marketing-kit" element={<MarketingKitHome />}>
+              <Route path="own-idea" element={<OwnIdeaFlow />} />
+              <Route path="calendar" element={<CalendarView />} />
+            </Route>
+            <Route path="marketing-kit/preview/:sessionId" element={<PreviewPanel />} />
+            <Route path="marketing-kit/platform/:sessionId" element={<PlatformPreview />} />
             <Route path="funding" element={<FundingMatcher />} />
             <Route path="deployments" element={<Deployments />} />
             <Route path="projects" element={<MyProjects />} />

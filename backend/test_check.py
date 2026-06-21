@@ -15,11 +15,11 @@ async def full_test():
                 print(f'  Projects: {len(projects)}')
                 for p in projects:
                     has_mr = bool(p.get('marketResearch'))
-                    has_comp = len(p.get('competitors', []))
+                    comp_field = p.get('competitors')
+                    has_comp = len(comp_field.get('competitors', [])) if isinstance(comp_field, dict) else len(comp_field or [])
                     has_web = bool(p.get('websiteCode'))
-                    has_mk = len(p.get('marketingKit', []))
                     has_fund = len(p.get('fundingOpportunities', []))
                     print(f'  [{p["id"]}] "{p["name"]}"')
-                    print(f'    MarketResearch={has_mr} Competitors={has_comp} Website={has_web} MarketingKit={has_mk} Funding={has_fund}')
+                    print(f'    MarketResearch={has_mr} Competitors={has_comp} Website={has_web} Funding={has_fund}')
 
 asyncio.run(full_test())

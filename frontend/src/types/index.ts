@@ -1,16 +1,51 @@
-export interface Competitor {
-  name: string;
-  strengths: string[];
-  weaknesses: string[];
-  gap: string;
+import type { MarketIntelligence, CompetitorIntelligence, CustomerDiscovery, LegacyCompetitor } from './research';
+
+// ── Ideation types ────────────────────────────────────────────────────────
+
+export interface DimensionScores {
+  problem: number;
+  targetCustomer: number;
+  solutionWedge: number;
+  alternatives: number;
+  valueAndWillingness: number;
 }
 
-export interface MarketingPost {
-  platform: 'Instagram' | 'LinkedIn' | 'Twitter' | 'Facebook';
-  content: string;
-  hashtags: string[];
-  imagePrompt: string;
+export interface ExtractedIdea {
+  problem: string;
+  targetCustomer: string;
+  solutionWedge: string;
+  alternatives: string;
+  valueAndWillingness: string;
+  industry: string;
+  location: string;
 }
+
+export interface IdeationMessage {
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: string;
+}
+
+export interface IdeationData {
+  messages: IdeationMessage[];
+  extracted: ExtractedIdea;
+  dimensionScores: DimensionScores;
+  confidence: number;
+  ready: boolean;
+  status: 'ideating' | 'ready' | 'analyzed';
+}
+
+export interface IdeateResponse {
+  reply: string;
+  nextQuestion: string;
+  extracted: ExtractedIdea;
+  dimensionScores: DimensionScores;
+  confidence: number;
+  ready: boolean;
+  messages: IdeationMessage[];
+}
+
+// ── Existing types ─────────────────────────────────────────────────────────
 
 export interface FundingOpportunity {
   type: 'Grant' | 'VC' | 'Accelerator' | 'Angel' | 'Government Program';
@@ -37,34 +72,21 @@ export interface Project {
   industry?: string;
   targetAudience?: string;
   location?: string;
-  marketResearch?: MarketResearchData;
-  competitors: Competitor[];
+  hackathonMode?: boolean;
+  marketResearch?: MarketIntelligence;
+  // competitor_intelligence.v1 once regenerated; may still be the legacy LegacyCompetitor[]
+  // shape for projects that haven't been re-run since the v2 research pipeline shipped.
+  competitors?: CompetitorIntelligence | LegacyCompetitor[];
+  customerValidation?: CustomerDiscovery;
   websiteCode?: string;
-  marketingKit: MarketingPost[];
   fundingOpportunities: FundingOpportunity[];
   competitorAnalytics: any[];
   webhookUrl?: string;
   zapierWebhookUrl?: string;
+  marketingKitGenerated?: boolean;
+  ideation?: IdeationData;
   createdAt: string;
   updatedAt: string;
-}
-
-export interface MarketResearchData {
-  tam: { value: string; description: string };
-  sam: { value: string; description: string };
-  som: { value: string; description: string };
-  positioning: {
-    quadrant: Array<{ name: string; x: number; y: number }>;
-    pyramid: string[];
-  };
-  landscape: Array<{
-    name: string;
-    marketShare: string;
-    growth: 'high' | 'medium' | 'low';
-    threat: 'high' | 'medium' | 'low';
-    notes: string;
-  }>;
-  keyOpportunity: string;
 }
 
 export interface User {

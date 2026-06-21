@@ -1,18 +1,21 @@
 import { NavLink, useNavigate } from 'react-router-dom'
-import { Sparkles, BarChart2, Users, Globe, Megaphone, DollarSign, Plug, Plus, FolderOpen, LogOut } from 'lucide-react'
+import { Sparkles, BarChart2, Users, UserSearch, Globe, Megaphone, DollarSign, Plug, Plus, FolderOpen, LogOut } from 'lucide-react'
 import { useProjectStore } from '../../store/project'
 import { useAuthStore } from '../../store/auth'
 import { useProject } from '../../hooks/useProject'
 import api from '../../lib/api'
 
 const modules = [
-  { to: '/dashboard/research',    icon: BarChart2,  label: 'Market Research',    key: 'marketResearch',       color: '#2dd4bf' },
-  { to: '/dashboard/competitors', icon: Users,      label: 'Competitors',         key: 'competitors',          color: '#818cf8' },
-  { to: '/dashboard/website',     icon: Globe,      label: 'Landing Page',        key: 'websiteCode',          color: '#34d399' },
-  { to: '/dashboard/marketing',   icon: Megaphone,  label: 'Marketing Kit',       key: 'marketingKit',         color: '#f472b6' },
-  { to: '/dashboard/funding',     icon: DollarSign, label: 'Funding',             key: 'fundingOpportunities', color: '#fbbf24' },
-  { to: '/dashboard/deployments', icon: Plug,       label: 'Deployments',         key: null,                   color: '#c084fc' },
+  { to: '/dashboard/research',             icon: BarChart2,  label: 'Market Research',      key: 'marketResearch',       color: '#2dd4bf' },
+  { to: '/dashboard/competitors',          icon: Users,      label: 'Competitor Analysis',  key: 'competitors',          color: '#818cf8' },
+  { to: '/dashboard/customer-validation',  icon: UserSearch, label: 'Customer Validation',  key: 'customerValidation',   color: '#f472b6' },
+  { to: '/dashboard/website',              icon: Globe,      label: 'Landing Page',          key: 'websiteCode',          color: '#34d399' },
+  { to: '/dashboard/funding',              icon: DollarSign, label: 'Funding',               key: 'fundingOpportunities', color: '#fbbf24' },
+  { to: '/dashboard/marketing-kit',        icon: Megaphone,  label: 'Marketing Kit',         key: 'marketingKitGenerated', color: '#fb923c' },
+  { to: '/dashboard/deployments',          icon: Plug,       label: 'Deployments',           key: null,                   color: '#c084fc' },
 ]
+
+const PROGRESS_MODULE_COUNT = 6
 
 function isDone(project: any, key: string | null): boolean {
   if (!project || !key) return false
@@ -27,8 +30,8 @@ export default function Sidebar() {
   const { data: project } = useProject(activeProjectId)
   const navigate = useNavigate()
 
-  const doneCount = modules.slice(0,5).filter(m => isDone(project, m.key)).length
-  const pct = Math.round((doneCount / 5) * 100)
+  const doneCount = modules.slice(0, PROGRESS_MODULE_COUNT).filter(m => isDone(project, m.key)).length
+  const pct = Math.round((doneCount / PROGRESS_MODULE_COUNT) * 100)
 
   const handleNewProject = () => { clearActiveProject(); navigate('/dashboard') }
   const handleLogout = async () => {
@@ -64,7 +67,7 @@ export default function Sidebar() {
               <div className="h-full rounded-full transition-all duration-700"
                 style={{ width: `${pct}%`, background: 'linear-gradient(90deg,#2dd4bf,#818cf8)' }} />
             </div>
-            <span className="text-[10px] shrink-0" style={{ color: '#52525b' }}>{doneCount}/5</span>
+            <span className="text-[10px] shrink-0" style={{ color: '#52525b' }}>{doneCount}/{PROGRESS_MODULE_COUNT}</span>
           </div>
         </div>
       )}

@@ -2,13 +2,17 @@ from fastapi import APIRouter, Depends, HTTPException
 from typing import List
 from bson import ObjectId
 from datetime import datetime, timezone
-from models.project import ProjectCreate, ProjectUpdate, ProjectOut
+from models.project import ProjectCreate, ProjectUpdate, ProjectOut, IdeationData
 from core.dependencies import get_current_user, get_project_or_404
 from db.database import get_database
+from services.website_service import build_website_prompt, groq_generate_website
 
 router = APIRouter()
 
 def serialize_project(p: dict) -> ProjectOut:
+    # Deserialize ideation sub-document if present
+    raw_ideation = p.get("ideation")
+    ideation_data = IdeationData(**raw_ideation) if raw_ideation else None
     return ProjectOut(
         id=str(p["_id"]),
         userId=str(p["user_id"]),
@@ -17,14 +21,17 @@ def serialize_project(p: dict) -> ProjectOut:
         industry=p.get("industry"),
         targetAudience=p.get("targetAudience"),
         location=p.get("location"),
+        hackathonMode=p.get("hackathonMode", False),
         marketResearch=p.get("marketResearch"),
         competitors=p.get("competitors", []),
+        customerValidation=p.get("customerValidation"),
         websiteCode=p.get("websiteCode"),
-        marketingKit=p.get("marketingKit", []),
         fundingOpportunities=p.get("fundingOpportunities", []),
         competitorAnalytics=p.get("competitorAnalytics", []),
         webhookUrl=p.get("webhookUrl"),
         zapierWebhookUrl=p.get("zapierWebhookUrl"),
+        marketingKitGenerated=p.get("marketingKitGenerated", False),
+        ideation=ideation_data,
         createdAt=p["createdAt"],
         updatedAt=p["updatedAt"]
     )
@@ -49,14 +56,17 @@ async def create_project(body: ProjectCreate, current_user=Depends(get_current_u
         "industry": body.industry,
         "targetAudience": body.targetAudience,
         "location": body.location,
+        "hackathonMode": body.hackathonMode or False,
         "marketResearch": None,
         "competitors": [],
+        "customerValidation": None,
         "websiteCode": None,
-        "marketingKit": [],
         "fundingOpportunities": [],
         "competitorAnalytics": [],
         "webhookUrl": None,
         "zapierWebhookUrl": None,
+        # Ideation starts empty; populated via /ideate endpoint
+        "ideation": IdeationData().model_dump(),
         "createdAt": now,
         "updatedAt": now
     }
@@ -73,14 +83,26 @@ async def update_project(body: ProjectUpdate, project=Depends(get_project_or_404
     update_data = {k: v for k, v in body.model_dump().items() if v is not None}
     if not update_data:
         return serialize_project(project)
-    # Convert Pydantic models to dicts for MongoDB
-    for key in ["competitors", "marketingKit", "fundingOpportunities"]:
+    # Convert Pydantic models to dicts for MongoDB (competitors/customerValidation are
+    # already plain dicts now — only fundingOpportunities still holds nested Pydantic models)
+    for key in ["fundingOpportunities"]:
         if key in update_data and update_data[key]:
             update_data[key] = [item.model_dump() if hasattr(item, 'model_dump') else item for item in update_data[key]]
     update_data["updatedAt"] = datetime.now(timezone.utc)
     await db.projects.update_one(
         {"_id": ObjectId(project["id"])},
         {"$set": update_data}
+    )
+    updated = await db.projects.find_one({"_id": ObjectId(project["id"])})
+    return serialize_project(updated)
+
+@router.post("/{project_id}/regenerate-website", response_model=ProjectOut)
+async def regenerate_website(project=Depends(get_project_or_404), db=Depends(get_database)):
+    prompt = build_website_prompt(project["idea"], project.get("industry"), project.get("location"))
+    html_code = await groq_generate_website(prompt)
+    await db.projects.update_one(
+        {"_id": ObjectId(project["id"])},
+        {"$set": {"websiteCode": html_code, "updatedAt": datetime.now(timezone.utc)}}
     )
     updated = await db.projects.find_one({"_id": ObjectId(project["id"])})
     return serialize_project(updated)

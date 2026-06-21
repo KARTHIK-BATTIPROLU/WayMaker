@@ -14,8 +14,8 @@ STEP_MESSAGES = {
     "web_search": "Researching market with live web data...",
     "market_research": "Analyzing market size and opportunities...",
     "competitors": "Mapping the competitive landscape...",
+    "customer_validation": "Finding real communities to validate with...",
     "website": "Designing your landing page...",
-    "marketing": "Creating social media content...",
     "funding": "Matching funding opportunities..."
 }
 
@@ -38,8 +38,8 @@ async def run_orchestrator(
                 "web_search_context": None,
                 "market_research": None,
                 "competitors": None,
+                "customer_validation": None,
                 "website_code": None,
-                "marketing_kit": None,
                 "funding": None,
                 "current_step": "starting",
                 "completed_steps": [],
@@ -71,16 +71,17 @@ async def run_orchestrator(
                         data_payload["data"] = state_update.get("market_research")
 
                     elif step == "competitors":
-                        competitors = state_update.get("competitors", [])
+                        competitors = state_update.get("competitors") or {}
                         data_payload["data"] = competitors
-                        data_payload["count"] = len(competitors)
+                        data_payload["count"] = len(competitors.get("competitors", []))
+
+                    elif step == "customer_validation":
+                        customer_validation = state_update.get("customer_validation") or {}
+                        data_payload["data"] = customer_validation
+                        data_payload["count"] = len(customer_validation.get("communities", []))
 
                     elif step == "website":
                         data_payload["hasWebsite"] = bool(state_update.get("website_code"))
-
-                    elif step == "marketing":
-                        kit = state_update.get("marketing_kit", [])
-                        data_payload["platforms"] = [p.get("platform") for p in kit]
 
                     elif step == "funding":
                         funding = state_update.get("funding", [])

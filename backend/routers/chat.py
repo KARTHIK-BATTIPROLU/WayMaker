@@ -13,8 +13,14 @@ from db.database import get_database
 router = APIRouter()
 
 def build_chat_system_prompt(project: dict) -> str:
-    competitors = project.get("competitors", [])
-    competitor_names = ", ".join([c.get("name", "") for c in competitors]) if competitors else "None identified yet"
+    competitors_field = project.get("competitors")
+    if isinstance(competitors_field, dict):
+        competitor_list = competitors_field.get("competitors", [])
+    elif isinstance(competitors_field, list):
+        competitor_list = competitors_field
+    else:
+        competitor_list = []
+    competitor_names = ", ".join([c.get("name", "") for c in competitor_list]) if competitor_list else "None identified yet"
     return CHAT_SYSTEM_TEMPLATE.format(
         name=project.get("name", ""),
         idea=project.get("idea", ""),
@@ -24,7 +30,6 @@ def build_chat_system_prompt(project: dict) -> str:
         has_market_research="Yes" if project.get("marketResearch") else "No",
         competitor_names=competitor_names,
         has_website="Yes" if project.get("websiteCode") else "No",
-        has_marketing="Yes" if project.get("marketingKit") else "No",
         has_funding="Yes" if project.get("fundingOpportunities") else "No"
     )
 
@@ -102,9 +107,10 @@ async def send_chat_message(
     if tool_args:
         # Apply updates to project
         from models.project import ProjectUpdate
+        # competitors/customerValidation are excluded: they're now schema-validated
+        # research-pipeline outputs (see validators.py), not chat-editable free text.
         allowed_fields = ["name", "industry", "targetAudience", "location",
-                          "marketResearch", "competitors", "websiteCode",
-                          "marketingKit", "fundingOpportunities"]
+                          "marketResearch", "websiteCode", "fundingOpportunities"]
         filtered = {k: v for k, v in tool_args.items() if k in allowed_fields}
         if filtered:
             filtered["updatedAt"] = datetime.now(timezone.utc)

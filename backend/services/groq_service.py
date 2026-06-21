@@ -29,13 +29,14 @@ async def groq_chat(
     messages: list,
     model: str = "llama-3.1-8b-instant",
     max_tokens: int = 4096,
-    temperature: float = 1.0
+    temperature: float = 1.0,
+    api_key: Optional[str] = None
 ) -> str:
     async with httpx.AsyncClient(timeout=90.0) as client:
         response = await client.post(
             GROQ_CHAT_URL,
             headers={
-                "Authorization": f"Bearer {settings.groq_api_key}",
+                "Authorization": f"Bearer {api_key or settings.groq_api_key_1}",
                 "Content-Type": "application/json"
             },
             json={

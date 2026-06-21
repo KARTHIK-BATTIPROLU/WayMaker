@@ -115,7 +115,7 @@ export default function WebsiteBuilder() {
             <h2 className="font-display text-2xl font-bold text-white mb-3">Generate Landing Page</h2>
             <p className="text-zinc-500 text-sm mb-6 leading-relaxed">
               Create a production-ready, award-winning landing page custom-designed for{' '}
-              <strong className="text-teal-400">{project.name}</strong> using Gemini AI + Tailwind CSS.
+              <strong className="text-teal-400">{project.name}</strong> using AI + Tailwind CSS.
             </p>
 
             {/* Features */}

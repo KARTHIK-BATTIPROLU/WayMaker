@@ -24,9 +24,9 @@ class OrchestratorState(TypedDict):
     # Generated data (populated by nodes)
     web_search_context: Optional[str]
     market_research: Optional[dict]
-    competitors: Optional[List[dict]]
+    competitors: Optional[dict]
+    customer_validation: Optional[dict]
     website_code: Optional[str]
-    marketing_kit: Optional[List[dict]]
     funding: Optional[List[dict]]
     # Pipeline tracking
     current_step: Annotated[str, replace]

@@ -14,10 +14,10 @@ interface OrchestrateState {
 const PROGRESS_MAP: Record<string, number> = {
   starting: 5,
   web_search: 15,
-  market_research: 35,
-  competitors: 55,
-  website: 72,
-  marketing: 85,
+  market_research: 32,
+  competitors: 50,
+  customer_validation: 68,
+  website: 82,
   funding: 95,
   complete: 100,
 }
@@ -27,8 +27,8 @@ const MESSAGE_MAP: Record<string, string> = {
   web_search: 'Researching market with live web data...',
   market_research: 'Analyzing TAM, SAM & SOM...',
   competitors: 'Mapping the competitive landscape...',
+  customer_validation: 'Finding real communities to validate with...',
   website: 'Designing your landing page...',
-  marketing: 'Creating social media content...',
   funding: 'Matching funding opportunities...',
   complete: 'Complete! Your business foundation is ready.',
 }

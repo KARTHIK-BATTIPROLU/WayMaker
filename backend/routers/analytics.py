@@ -17,7 +17,13 @@ async def analyze_competitor_socials(
     current_user=Depends(get_current_user),
     db=Depends(get_database)
 ):
-    competitors = project.get("competitors", [])[:3]
+    competitors_field = project.get("competitors")
+    if isinstance(competitors_field, dict):
+        competitors = competitors_field.get("competitors", [])[:3]
+    elif isinstance(competitors_field, list):
+        competitors = competitors_field[:3]
+    else:
+        competitors = []
     if not competitors:
         return {"analytics": [], "message": "No competitors to analyze"}
 
